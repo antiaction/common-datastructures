@@ -29,6 +29,7 @@ public class FlatfileLookupCaching extends FlatfileLookupAbstract {
 	/**
 	 * Initialise lookup class with default buffer size value.
 	 * @param flatFile flat file to read from
+	 * @return initialised object instance
 	 */
 	public static FlatfileLookupCaching getInstance(File flatFile) {
 		return getInstance(flatFile, DEFAULT_SQRN_BUFSIZE, RAFReadLineByteBuffered.DEFAULT_READLINE_BYTEBUFFER_SIZE, DEFAULT_CACHE_TREE_LEVEL);
@@ -39,6 +40,7 @@ public class FlatfileLookupCaching extends FlatfileLookupAbstract {
 	 * @param flatFile flat file to read from
 	 * @param sqrNBufSize sqr(n) buffer size used to divide file into blocks
 	 * @param readLineBufSize buffer size used to read lines
+	 * @return initialised object instance
 	 */
 	public static FlatfileLookupCaching getInstance(File flatFile, int sqrNBufSize, int readLineBufSize) {
 		return getInstance(flatFile, sqrNBufSize, readLineBufSize, DEFAULT_CACHE_TREE_LEVEL);
@@ -50,6 +52,7 @@ public class FlatfileLookupCaching extends FlatfileLookupAbstract {
 	 * @param sqrNBufSize sqr(n) buffer size used to divide file into blocks
 	 * @param readLineBufSize buffer size used to read lines
 	 * @param cacheTreeLevel number of tree levels to cache in the binary lookup routine
+	 * @return initialised object instance
 	 */
 	public static FlatfileLookupCaching getInstance(File flatFile, int sqrNBufSize, int readLineBufSize, int cacheTreeLevel) {
 		FlatfileLookupCaching fflc = new FlatfileLookupCaching(flatFile);
@@ -60,6 +63,14 @@ public class FlatfileLookupCaching extends FlatfileLookupAbstract {
 		return fflc;
 	}
 
+	/**
+	 * Initialise lookup class with specific buffer size value and cache tree level for concurrent use.
+	 * Each thread needs to use a separate line reader. Can be obtained by calling the appropriate method.
+	 * @param flatFile flat file to read from
+	 * @param sqrNBufSize sqr(n) buffer size used to divide file into blocks
+	 * @param cacheTreeLevel number of tree levels to cache in the binary lookup routine
+	 * @return initialised object instance
+	 */
 	public static FlatfileLookupCaching getConcurrentInstance(File flatFile, int sqrNBufSize, int cacheTreeLevel) {
 		FlatfileLookupCaching fflc = new FlatfileLookupCaching(flatFile);
 		fflc.sqrNBufSize = sqrNBufSize;

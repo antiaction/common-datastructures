@@ -35,11 +35,21 @@ public class IndexedTextFile implements Pageable, Closeable {
 	/** Indexed text lines. */
 	public long indexedTextLines;
 
+	/**
+	 * Creates a line indexed text file for pagination.
+	 * @param dir location to store search result files
+	 * @param baseFilename base filename to use when creating the text and index files
+	 * @throws IOException if an I/O exception occurs while creating cache files
+	 */
 	public IndexedTextFile(File dir, String baseFilename) throws IOException {
 		textFile = new File(dir, baseFilename + ".log");
 		idxFile = new File(dir, baseFilename + ".idx");
 	}
 
+	/**
+	 * Initialise text and index files.
+	 * @throws IOException if an I/O exception occurs while initialising text and index files
+	 */
 	public synchronized void init() throws IOException {
 		textRaf = new RandomAccessFile(textFile, "rw");
 		idxRaf = new RandomAccessFile(idxFile, "rw");
@@ -64,6 +74,10 @@ public class IndexedTextFile implements Pageable, Closeable {
 		CloseUtils.closeQuietly(idxRaf);
 	}
 
+	/**
+	 * Add the used files for this object to the supplied list.
+	 * @param oldFilesList list of <code>File</code> objects
+	 */
 	public void addFilesToOldFilesList(List<File> oldFilesList) {
 		oldFilesList.add(textFile);
 		oldFilesList.add(idxFile);
@@ -94,7 +108,15 @@ public class IndexedTextFile implements Pageable, Closeable {
 		return IndexedTextFile.readPage(idxRaf, textRaf, page, itemsPerPage, descending);
 	}
 
-	public long write(InputStream in, byte[] tmpBuf, long to) throws IOException {
+	/**
+	 * Add lines to the text file and positions to the index file.
+	 * @param in input stream with bytes to append text file
+	 * @param tmpBuf byte buffer used to transfer bytes from input stream to text file
+	 * @param to counter to increment with the amount of bytes appended
+	 * @return the to value incremented with the bytes appended to the text file
+	 * @throws IOException if an I/O exception occurs while append bytes and indexing text 
+	 */
+	public synchronized long write(InputStream in, byte[] tmpBuf, long to) throws IOException {
 		int read;
 		int idx;
 		long pos = textRaf.length();
@@ -124,7 +146,7 @@ public class IndexedTextFile implements Pageable, Closeable {
 	 * @param page page to return
 	 * @param itemsPerPage item per page
 	 * @param descending start from the beginning or end of the index/text file
-	 * @return
+	 * @return a byte array containing a page of lines as read based on the index, page and items per page
 	 * @throws IOException if an I/O exception occurs while reading a page
 	 */
 	public static byte[] readPage(RandomAccessFile idxRaf, RandomAccessFile textRaf, long page, long itemsPerPage, boolean descending) throws IOException {

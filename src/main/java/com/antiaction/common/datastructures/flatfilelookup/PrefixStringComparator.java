@@ -14,10 +14,11 @@ public class PrefixStringComparator {
 	}
 
 	/**
-	 * 
-	 * @param prefix
-	 * @param str
-	 * @return
+	 * Compare a prefix string against a string and return an integer result.
+	 * Return 0 if the prefix is fully present in the string, -1 if the prefix comes before and 1 if the prefix comes after.
+	 * @param prefix prefix string in array form
+	 * @param str string in array form
+	 * @return comparison result integer
 	 */
 	public int comparePrefix(char[] prefix, char[] str) {
 		int res = 0;

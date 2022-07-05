@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import com.antiaction.common.datastructures.CloseUtils;
 
 /**
- * Class used to perform regex search and cached the result on disk.
+ * Class used to perform regex search and cache the result on disk.
  * Supports updating the search if the original file increased after a previous search.
  * Also used the <code>StringIndexFile</code> class to show a paged view of the search results.
  *
@@ -51,20 +51,21 @@ public class IndexedTextFileSearchResult implements Pageable, Closeable {
 	/**
 	 * Create a search result object and prepare the stored cache files.
 	 * @param textFile original text file
-	 * @param srBaseFile base file(name) to use when creating the search result text and index files
+	 * @param dir location to store search result files
+	 * @param baseFilename base filename to use when creating the search result text and index files
 	 * @param q regex string
 	 * @param searchResultNr unique sequential search result number used to store cache files
 	 * @throws IOException if an I/O exception occurs whule creating cache files
 	 */
-	public IndexedTextFileSearchResult(File textFile, File dir, String srBaseFilename, String q, int searchResultNr) throws IOException {
+	public IndexedTextFileSearchResult(File textFile, File dir, String baseFilename, String q, int searchResultNr) throws IOException {
 		this.textFile = textFile;
 		p = Pattern.compile(q, Pattern.CASE_INSENSITIVE);
 		// Create a reusable pattern matcher object for use with the reset method.
 		m = p.matcher("42");
-		srTextFile = new File(dir, srBaseFilename + "-" + searchResultNr + ".log");
+		srTextFile = new File(dir, baseFilename + "-" + searchResultNr + ".log");
 		srTextRaf = new RandomAccessFile(srTextFile, "rw");
 		srTextRaf.setLength(0);
-		srIdxFile = new File(dir, srBaseFilename + "-" + searchResultNr + ".idx");
+		srIdxFile = new File(dir, baseFilename + "-" + searchResultNr + ".idx");
 		srIdxRaf = new RandomAccessFile(srIdxFile, "rw");
 		srIdxRaf.setLength(0);
 		srIdxRaf.writeLong(0);
@@ -104,14 +105,18 @@ public class IndexedTextFileSearchResult implements Pageable, Closeable {
 		return IndexedTextFile.readPage(srIdxRaf, srTextRaf, page, itemsPerPage, descending);
 	}
 
+	/**
+	 * Add the used files for this object to the supplied list.
+	 * @param oldFilesList list of <code>File</code> objects
+	 */
 	public void addFilesToOldFilesList(List<File> oldFilesList) {
 		oldFilesList.add(srTextFile);
 		oldFilesList.add(srIdxFile);
 	}
 
 	/**
-	 * Perform an update search on the part of the original text file that has not yet been read.
-	 * @throws IOException if an I/O exception occurs while updaing the cached search result files
+	 * Perform an update search on the part of the original text file that has not yet been searched.
+	 * @throws IOException if an I/O exception occurs while updating the cached search result files
 	 */
 	public synchronized void update() throws IOException {
 		// Check to see if the search result is up to date.
